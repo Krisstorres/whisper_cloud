@@ -172,8 +172,8 @@ def returndata():
         respuesta= ai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-            {"role": "system", "content": "Eres un modelo que realiza clasificación de textos"},
-            {"role": "user", "content": ""},
+            {"role": "system", "content": "comportate como un modelo que realiza clasificacion de textos segun categoria"},
+            {"role": "user", "content": "Realixa el ananlisis y responde solo con la clasificacion de este texto segun su categoria ejemplo: (servico_tecnico, recursos humanos, contabilidad )"},
             {"role": "assistant", "content": f"{text}"},
             {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
             ])
