@@ -8,13 +8,19 @@ import time
 
 
 ##-- Variables
-key = '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'
+
+Whisper_01=   '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'
+
+Chatgpt_01=  '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'
+
 ruta_archivos = os.path.abspath('Grabaciones')
 if not os.path.exists(ruta_archivos):
     os.mkdir(ruta_archivos)
 ruta_textos = os.path.abspath('Textos')
 if not os.path.exists(ruta_textos):
     os.mkdir(ruta_textos)
+ruta_textos = os.path.abspath('Textos')
+
 lista_archivos = os.listdir('Grabaciones')
 soportado = ['mp3', 'flac', 'wav', 'm4a']
 ##-- Variables
@@ -65,8 +71,11 @@ app.config['UPLOAD_FOLDER'] = 'Grabaciones'
 
 @app.route('/api/upload', methods=['POST'])
 def returndata():
+    
     limpieza()
+    
     try:
+        
         ##--DESCARGA POR URL AL NO PROPORCIONAR EL ARCHIVO
         if 'file' not in request.files:
             try:
@@ -76,7 +85,7 @@ def returndata():
                 ruta_destino = os.path.join(ruta_archivos,filename)
                 descargar_url(url,ruta_destino)
                 try:
-                    ai.api_key = key
+                    ai.api_key = Whisper_01
                     with open(ruta_destino, "rb") as audio_file:
                          transcript = ai.Audio.transcribe("whisper-1", audio_file)
                     
@@ -93,8 +102,8 @@ def returndata():
                     response_data = json_data.decode('utf-8')
                     remove_file(ruta_destino)
                 
-                    KEY = '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'
-                    ai.api_key = KEY
+                    
+                    ai.api_key = Chatgpt_01
 
                     rest = ai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
@@ -105,23 +114,35 @@ def returndata():
                         {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
                         ])
 
-                    content = rest['choices'][0]['message']['content']    
+                    content = rest['choices'][0]['message']['content']
+                    respuesta= ai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                    {"role": "system", "content": "comportate como un modelo que realiza clasificacion de textos segun categoria"},
+                    {"role": "user", "content": "Realixa el ananlisis y responde solo con la clasificacion de este texto segun su categoria ejemplo: (servico_tecnico, recursos humanos, contabilidad )"},
+                    {"role": "assistant", "content": f"{text}"},
+                    {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
+                    ])
+                    contenido=respuesta['choices'][0]['message']['content']
+            
 
                     
                     data={
                     #'user_id': userid
                     'filename':filename
-                     ,'transcription':text
-                     ,'data_analisis':content
-                     }
+                    ,'transcription':str(text).replace("APM-","ó")
+                    ,'data_analisis':content
+                    ,'clasificacion':contenido
+                    }
+                    #---------------------------------------------------------------------------------------------------------------------------
                     response = jsonify(data)
                     response.headers['Content-Type'] = 'application/json'
                     return response
                     
                 except Exception as e:
-                    return jsonify({'Error app':str(e)})
+                    return jsonify({'error_descarga' :str(e)})
                 
-                return jsonify({'ruta archivo':transcript})
+                
                         
                     
                     
@@ -130,7 +151,7 @@ def returndata():
                 #return response
         ##--RETORNO DE FLUJO ALTERNATIVO   
             except Exception as e:
-                return jsonify({'error' :    'descarga' })
+                return jsonify({'Request_error' :    str(e) })
         ##--DESCARGA POR URL AL NO PROPORCIONAR EL ARCHIVO
         file = request.files['file']
         if file.filename == '':
@@ -138,7 +159,7 @@ def returndata():
         filename = secure_filename(file.filename)
         temp_filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(temp_filepath)
-        ai.api_key = key
+        ai.api_key = Whisper_01
         with open(temp_filepath, "rb") as audio_file:
             transcript = ai.Audio.transcribe("whisper-1", audio_file)
         transcript_text = transcript['text'].encode('UTF-7').decode('unicode_escape')
@@ -154,15 +175,17 @@ def returndata():
         #response_data = json_data.decode('utf-8')
         remove_file(temp_filepath)
        
-        KEY = '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'
-        ai.api_key = KEY
+        
+        ai.api_key = Chatgpt_01
+        texto=text.encode('latin-1').decode('utf-8')
+        texto=str(texto).replace('+AOk-','é')
 
         rest = ai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "Eres un modelo que realiza análisis de sentimientos."},
             {"role": "user", "content": "Realiza un análisis de sentimientos a este texto"},
-            {"role": "assistant", "content": f"{str(text).replace('APM-','ó')}"},
+            {"role": "assistant", "content": f"{str(texto).replace('APM-','ó')}"},
             {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
             ])
 
@@ -174,7 +197,7 @@ def returndata():
             messages=[
             {"role": "system", "content": "comportate como un modelo que realiza clasificacion de textos segun categoria"},
             {"role": "user", "content": "Realixa el ananlisis y responde solo con la clasificacion de este texto segun su categoria ejemplo: (servico_tecnico, recursos humanos, contabilidad )"},
-            {"role": "assistant", "content": f"{text}"},
+            {"role": "assistant", "content": f"{texto}"},
             {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
             ])
         contenido=respuesta['choices'][0]['message']['content']
@@ -182,7 +205,7 @@ def returndata():
         data={
         #'user_id': userid
          'filename':filename
-        ,'transcription':str(text).replace("APM-","ó")
+        ,'transcription':texto
         ,'data_analisis':content
         ,'clasificacion':contenido
         }
