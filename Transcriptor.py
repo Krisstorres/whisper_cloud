@@ -8,10 +8,9 @@ import time
 
 
 ##-- Variables
+Whisper_01=   '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'
 
-Whisper_01=   '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'
-
-Chatgpt_01=  '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'
+Chatgpt_01=  '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'
 
 ruta_archivos = os.path.abspath('Grabaciones')
 if not os.path.exists(ruta_archivos):
@@ -70,16 +69,13 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'Grabaciones'
 
 @app.route('/api/upload', methods=['POST'])
-def returndata():
-    
+def returndata():    
     limpieza()
-    
-    try:
-        
+    try:        
         ##--DESCARGA POR URL AL NO PROPORCIONAR EL ARCHIVO
         if 'file' not in request.files:
-            try:
-                
+            
+            try:                
                 url = request.form.get('file')
                 filename=str(url).split(sep='https://demos.sixbell.com/')[1]         
                 ruta_destino = os.path.join(ruta_archivos,filename)
@@ -100,11 +96,8 @@ def returndata():
                     data = {"texto": text}
                     json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
                     response_data = json_data.decode('utf-8')
-                    remove_file(ruta_destino)
-                
-                    
+                    remove_file(ruta_destino)                                    
                     ai.api_key = Chatgpt_01
-
                     rest = ai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
@@ -113,7 +106,6 @@ def returndata():
                         {"role": "assistant", "content": f"{text}"},
                         {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
                         ])
-
                     content = rest['choices'][0]['message']['content']
                     respuesta= ai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
@@ -123,10 +115,7 @@ def returndata():
                     {"role": "assistant", "content": f"{text}"},
                     {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
                     ])
-                    contenido=respuesta['choices'][0]['message']['content']
-            
-
-                    
+                    contenido=respuesta['choices'][0]['message']['content']                                
                     data={
                     #'user_id': userid
                     'filename':filename
@@ -137,22 +126,15 @@ def returndata():
                     #---------------------------------------------------------------------------------------------------------------------------
                     response = jsonify(data)
                     response.headers['Content-Type'] = 'application/json'
-                    return response
-                    
+                    return response                    
                 except Exception as e:
-                    return jsonify({'error_descarga' :str(e)})
-                
-                
-                        
-                    
-                    
-                    
+                    return jsonify({'error_descarga' :str(e)})                                                                                                                
         ##--RETORNO DE FLUJO ALTERNATIVO        
                 #return response
         ##--RETORNO DE FLUJO ALTERNATIVO   
             except Exception as e:
                 return jsonify({'Request_error' :    str(e) })
-        ##--DESCARGA POR URL AL NO PROPORCIONAR EL ARCHIVO
+        #--DESCARGA POR URL AL NO PROPORCIONAR EL ARCHIVO
         file = request.files['file']
         if file.filename == '':
             return jsonify({'error': 'No se proporcionó un nombre de archivo válido'})            
