@@ -8,9 +8,9 @@ import time
 
 
 ##-- Variables
-Whisper_01='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'
+Whisper_01=''
 
-Chatgpt_01='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'
+Chatgpt_01=''
 
 ruta_archivos = os.path.abspath('Grabaciones')
 if not os.path.exists(ruta_archivos):
