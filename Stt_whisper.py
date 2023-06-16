@@ -8,6 +8,7 @@ import time
 # importaciones de librerias 
 
 ##-- Variables
+categorias_empresariales = "recursos humanos, finanzas, marketing, ventas, producción, desarrollo de productos, investigación y desarrollo, operaciones, logística, servicio al cliente"
 Whisper_01=''
 Chatgpt_01=''
 ruta_archivos = os.path.abspath('Grabaciones')
@@ -79,7 +80,7 @@ def returndata():
     ##--Limpiando cartpeta
     limpieza()
     ##--Limpiando cartpeta
-    try:        
+    try:
         if 'file' not in request.files:
             
             ##--                                                                    ##-- Descargando por url 
@@ -106,7 +107,7 @@ def returndata():
                     model="gpt-3.5-turbo",
                     messages=[
                         {"role": "system", "content": "Eres un modelo que realiza análisis de sentimientos."},
-                        {"role": "user", "content": "Realiza un análisis de sentimientos a este texto "},
+                        {"role": "user", "content": "Realiza un análisis de sentimientos a este texto y responde solo como maximo tres sentimientos predominantes en el texto y nada mas, nada más que solo los sentimientos."},
                         {"role": "assistant", "content": f"{text}"},
                         {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
                         ])
@@ -114,8 +115,8 @@ def returndata():
                     respuesta= ai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
-                    {"role": "system", "content": "comportate como un modelo que realiza clasificacion de textos segun categoria"},
-                    {"role": "user", "content": "Realixa el ananlisis y responde solo con la clasificacion de este texto segun su categoria ejemplo: (servico_tecnico, recursos humanos, contabilidad )"},
+                    {"role": "system", "content": f"Eres un modelo que realiza clasificacion de textos segun estas categorias{categorias_empresariales} ."},
+                    {"role": "user", "content": "Realiza la clasificación y responde (SOLO CON LA CATEGORIA y nada más, nada mas solo con la categoria.)"},
                     {"role": "assistant", "content": f"{text}"},
                     {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
                     ])
@@ -161,8 +162,8 @@ def returndata():
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "Eres un modelo que realiza análisis de sentimientos."},
-            {"role": "user", "content": "Realiza un análisis de sentimientos a este texto"},
-            {"role": "assistant", "content": f"{t}"},
+            {"role": "user", "content": "Realiza un análisis de sentimientos a este texto y responde solo como maximo tres sentimientos predominantes en el texto y nada mas, nada más que solo los sentimientos."},
+            {"role": "assistant", "content": f"{text}"},
             {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
             ])
 
@@ -172,9 +173,9 @@ def returndata():
         respuesta= ai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-            {"role": "system", "content": "comportate como un modelo que realiza clasificacion de textos segun categoria"},
-            {"role": "user", "content": "Realixa el ananlisis y responde solo con la clasificacion de este texto segun su categorias que podrian estar dentro de cualquier empresa  ejemplo: (servico_tecnico, recursos humanos, contabilidad )"},
-            {"role": "assistant", "content": f"{texto}"},
+            {"role": "system", "content": f"comportate como un modelo que realiza clasificacion de textos segun estas categorias{categorias_empresariales}"},
+            {"role": "user", "content": "Realiza la clasificación y responde (SOLO CON LA CATEGORIA y nada más, nada mas solo con la categoria.)"},
+            {"role": "assistant", "content": f"{text}"},
             {"role": "user", "content": "Muéstrame el resultado del análisis en breves palabras"}
             ])
         contenido=respuesta['choices'][0]['message']['content']
