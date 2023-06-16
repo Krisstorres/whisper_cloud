@@ -13,10 +13,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 #Copiar script al contenedor
-COPY Transcriptor.py .
+COPY Stt_whisper.py .
 
 #Exponer el puerto 5000 la ejecucion del proyecto
 EXPOSE 5000
 
 #Comando a ejecutar una vez se haga un run en la app 
-CMD ["python", "Transcriptor.py"]
+CMD ["python", "Stt_whisper.py"]
